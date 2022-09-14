@@ -52,11 +52,17 @@ public class UserServiceImpl implements UserService {
             }
         }
         user.setRoles(newRoles);
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+
+        String currentPassword = user.getPassword();
+        String passwordFromDataBase = userDao.findUserById(user.getId()).getPassword();
 
         if (user.getId() == null) {
+            user.setPassword(new BCryptPasswordEncoder().encode(currentPassword));
             userDao.saveUser(user);
         } else {
+            if (!currentPassword.equals(passwordFromDataBase)) {
+                user.setPassword(new BCryptPasswordEncoder().encode(currentPassword));
+            }
             userDao.updateUser(user);
         }
     }
